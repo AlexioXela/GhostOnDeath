@@ -5,16 +5,16 @@ using System.Text;
 using System.IO;
 using SimpleJSON;
 
-namespace Wonda
+namespace AlexioXela
 {
-    class RefightilizationLanguage
+    class GhostOnDeathLanguage
     {
         public List<string> ReviveMessages { get; set; }
         public List<string> RevengeMessages { get; set; }
         public string ItemBlacklistWarning { get; set; }
         public string RiskOfOptionsDescription { get; set; }
 
-        public RefightilizationLanguage()
+        public GhostOnDeathLanguage()
         {
             // Initializing our lists
             ReviveMessages = new List<string>();
@@ -24,7 +24,7 @@ namespace Wonda
             string currLang = Language.currentLanguageName;
 
             // Grabbing the file
-            FileStream stream = File.Open(System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("Refightilization.dll", "") + "LanguageResource.json", FileMode.Open, FileAccess.Read);
+            FileStream stream = File.Open(System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("GhostOnDeath.dll", "") + "LanguageResource.json", FileMode.Open, FileAccess.Read);
             StreamReader streamReader = new StreamReader(stream, Encoding.Unicode); // THE FILE MUST BE SAVED WITH ENCODING CODEPAGE 1200 OR EVERYTHING BREAKS.
             string streamRead = streamReader.ReadToEnd();
 

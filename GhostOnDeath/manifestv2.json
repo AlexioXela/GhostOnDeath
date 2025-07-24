@@ -1,12 +1,12 @@
 ﻿{
   "ManifestVersion": 2,
-  "AuthorName": "Wonda",
-  "Name": "wonda-Refightilization",
-  "DisplayName": "Refightilization",
-  "Version": "1.2.3",
+  "AuthorName": "AlexioXela",
+  "Name": "AlexioXela-GhostOnDeath",
+  "DisplayName": "GhostOnDeath",
+  "Version": "0.0.1",
   "Licence": "",
-  "WebsiteURL": "https://github.com/WondaMegapon/Refightilization/",
-  "Description": "Allows players to respawn as a monster when they die.",
+  "WebsiteURL": "https://github.com/AlexioXela/GhostOnDeath",
+  "Description": "Allows players to respawn as a ghost when they die.",
   "GameVersion": "N/A",
   "Dependencies": [
     "bbepis-BepInExPack-5.4.2113",

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework> <!--AX previously was netstandard2.1-->
     <LangVersion>preview</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
@@ -24,6 +24,8 @@
 
     <PackageReference Include="R2API.Language" Version="1.0.*" />
 
+    <PackageReference Include="Rune580.Mods.RiskOfRain2.RiskOfOptions" Version="2.8.3" />
+
     <PackageReference Include="UnityEngine.Modules" Version="2021.3.33" IncludeAssets="compile" />
     <PackageReference Include="RiskOfRain2.GameLibs" Version="1.3.2-r.1" />
     <PackageReference Include="MMHOOK.RoR2" Version="2024.9.5" NoWarn="NU1701" />
@@ -45,13 +47,17 @@
     <None Update="README.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Refightilization.language">
+    <None Update="GhostOnDeath.language">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="cd $(TargetDir)&#xD;&#xA;if exist output.zip (del output.zip)&#xD;&#xA;powershell Compress-Archive -Path '$(TargetFileName)', 'icon.png', 'manifest.json', 'manifestv2.json', 'README.md', 'LanguageResource.json', 'Refightilization.language' -DestinationPath 'output.zip'&#xD;&#xA;copy $(TargetFileName) C:\Users\Wonda\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Debug\BepInEx\plugins\Wonda-Refightilization\$(TargetFileName)" />
+    <!--Messed with this next line a bunch for linux-->
+    <!--Exec Command="cd $(TargetDir)&#xD;&#xA;if exist output.zip (del output.zip)&#xD;&#xA;powershell -Command Compress-Archive -Path '$(TargetFileName)', 'icon.png', 'manifest.json', 'manifestv2.json', 'README.md', 'LanguageResource.json', 'GhostOnDeath.language' -DestinationPath 'output.zip'&#xD;&#xA;copy $(TargetFileName) \home\AlexioXela\.config\r2modmanPlus-local\RiskOfRain2\profiles\AlexioXelaModding\BepInEx\plugins\GhostOnDeath\$(TargetFileName)" /-->
+    <!--Exec Command="cd $(TargetDir)&#xD;&#xA;[ -f 'output.zip' ] &amp;&amp; rm 'output.zip'&#xD;&#xA;powershell -Command Compress-Archive -Path '$(TargetFileName)', 'icon.png', 'manifest.json', 'manifestv2.json', 'README.md', 'LanguageResource.json', 'GhostOnDeath.language' -DestinationPath 'output.zip'&#xD;&#xA;copy $(TargetFileName) \home\AlexioXela\.config\r2modmanPlus-local\RiskOfRain2\profiles\AlexioXelaModding\BepInEx\plugins\GhostOnDeath\$(TargetFileName)" /-->
+    <!--Exec Command="powershell -Command Compress-Archive -Path '$(TargetFileName)', 'icon.png', 'manifest.json', 'manifestv2.json', 'README.md', 'LanguageResource.json', 'GhostOnDeath.language' -DestinationPath 'output.zip'" /-->
+    <Exec Command="cp -a '/home/AlexioXela/Documents/GitHub/GhostOnDeath/GhostOnDeath/bin/Debug/netstandard2.1/.' '/home/AlexioXela/.config/r2modmanPlus-local/RiskOfRain2/profiles/AlexioXelaModding/BepInEx/plugins/GhostOnDeath/'"/>
   </Target>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

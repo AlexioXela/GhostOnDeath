@@ -11,27 +11,27 @@ using System.Security;
 using System.Security.Permissions;
 using UnityEngine;
 
-namespace Wonda
+namespace AlexioXela
 {
     [NetworkCompatibility(CompatibilityLevel.NoNeedForSync)]
     [BepInDependency("com.bepis.r2api", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("com.rune580.riskofoptions", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(guid, modName, version)]
-    public class Refightilization : BaseUnityPlugin
+    public class GhostOnDeath : BaseUnityPlugin
     {
         // Setting up variables and waking the program up.
         //
 
         // Cool info B)
-        const string guid = "com.Wonda.Refightilization";
-        const string modName = "Refightilization";
+        const string guid = "com.AlexioXela.GhostOnDeath";
+        const string modName = "GhostOnDeath";
         const string version = "1.2.3";
 
         // Config
-        private RefightilizationConfig _config;
+        private GhostOnDeathConfig _config;
 
         // Language Management Stuff
-        private RefightilizationLanguage _language;
+        private GhostOnDeathLanguage _language;
 
         // Class to make players easier to manage
         public class PlayerStorage
@@ -70,10 +70,10 @@ namespace Wonda
 
         public void Awake()
         {
-            _config = new RefightilizationConfig(Config);
+            _config = new GhostOnDeathConfig(Config);
             SetupHooks();
             respawnMethodCheck.AddRange(_config.PreventPrefabResetMethods);
-            Logger.LogInfo("Loaded Refightilization!");
+            Logger.LogInfo("Loaded GhostOnDeath!");
         }
 
         public void Start()
@@ -400,7 +400,7 @@ namespace Wonda
         // Not yet the end of hooks, but up here are setup functions, and I need a place to shuffle through language info when neccesary.
         private void SetupLang()
         {
-            _language = new RefightilizationLanguage();
+            _language = new GhostOnDeathLanguage();
         }
 
         // Beginning the *actual* custom code.
@@ -540,7 +540,7 @@ namespace Wonda
             // Catching if we're in the middle of an infinite loop.
             if (respawnLoops > 99)
             {
-                Logger.LogError("INFINITE LOOP CAUGHT! Please file a bug report for Refightilization! This is not intended behavior.");
+                Logger.LogError("INFINITE LOOP CAUGHT! Please file a bug report for GhostOnDeath! This is not intended behavior.");
                 return;
             }
 

@@ -6,9 +6,9 @@ using BepInEx;
 using BepInEx.Configuration;
 using RiskOfOptions;
 
-namespace Wonda
+namespace AlexioXela
 {
-    class RefightilizationConfig
+    class GhostOnDeathConfig
     {
         // Making the private variables
         private readonly ConfigEntry<bool> _enableRefightilization;
@@ -87,7 +87,7 @@ namespace Wonda
         public string[] PreventPrefabResetMethods { get => _preventPrefabResetMethods.Value.Replace(" ", "").Split(','); }
 
         // Here's the fancy ol' initialization function.
-        public RefightilizationConfig(ConfigFile config)
+        public GhostOnDeathConfig(ConfigFile config)
         {
             _enableRefightilization = config.Bind("Master", "EnableRefightilization", true, "Enables/Disables the entire mod.");
 
@@ -119,7 +119,7 @@ namespace Wonda
             _murderWindow = config.Bind("Behavior Settings", "MurderWindow", 15f, "The amount of time that a player has after damaging a player to respawn as them.");
             _announceRespawns = config.Bind("Behavior Settings", "AnnounceRespawns", true, "Will announce a player respawning in the chat.");
             _disableMoon = config.Bind("Behavior Settings", "DisableMoon", true, "Prevents players from respawning in Commencement.");
-            _overrideMetamorphosis = config.Bind("Behavior Settings", "OverrideMetamorphosis", true, "Allows Refightilization to override Artifact of Metamorphosis's behavior.");
+            _overrideMetamorphosis = config.Bind("Behavior Settings", "OverrideMetamorphosis", true, "Allows GhostOnDeath to override Artifact of Metamorphosis's behavior.");
             _changeMinionsTeam = config.Bind("Behavior Settings", "ChangeMinionsTeam", true, "Minions will have their team changed to match the player.");
 
             _endGameWhenEverybodyDead = config.Bind("Debug", "EndGameWhenEverybodyDead", true, "Ends the round when everybody is dead. (Keep this on.)");
@@ -131,7 +131,7 @@ namespace Wonda
         public void BuildRiskOfOptionsMenu()
         {
             // Grabbing our icon.
-            byte[] iconData = File.ReadAllBytes(System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("Refightilization.dll", "") + "icon.png");
+            byte[] iconData = File.ReadAllBytes(System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("GhostOnDeath.dll", "") + "icon.png");
 
             // Some flavor.
             UnityEngine.Texture2D modIconSprite = new UnityEngine.Texture2D(256, 256);
