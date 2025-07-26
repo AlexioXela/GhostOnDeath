@@ -49,7 +49,7 @@ namespace AlexioXela
         private readonly ConfigEntry<string> _preventPrefabResetMethods;
 
         // Making the public variables
-        public bool EnableRefightilization { get => _enableRefightilization.Value; }
+        public bool EnableGhostOnDeath { get => _enableRefightilization.Value; }
 
         public bool AllowBosses { get => _allowBosses.Value; }
         public bool AllowScavengers { get => _allowScavengers.Value; }
@@ -89,7 +89,7 @@ namespace AlexioXela
         // Here's the fancy ol' initialization function.
         public GhostOnDeathConfig(ConfigFile config)
         {
-            _enableRefightilization = config.Bind("Master", "EnableRefightilization", true, "Enables/Disables the entire mod.");
+            _enableRefightilization = config.Bind("Master", "EnableGhostOnDeath", true, "Enables/Disables the entire mod.");
 
             _allowBosses = config.Bind("Monster Categories", "AllowBosses", true, "Allows players to spawn as bosses.");
             _allowScavengers = config.Bind("Monster Categories", "AllowScavengers", false, "Allows players to spawn as Scavengers.");

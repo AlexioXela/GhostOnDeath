@@ -53,11 +53,13 @@ namespace AlexioXela
         public List<PlayerStorage> playerStorage = new List<PlayerStorage>();
 
         // Internal, hardcoded monster lists.
+        
         private List<GameObject> voidWhitelist = new List<GameObject>();
         private List<GameObject> finalBossWhitelist = new List<GameObject>();
+        
 
         // Hard-coded Functions for Respawn to not clear the player prefab.
-        private List<string> respawnMethodCheck = new List<string>() { "RefightRespawn" };
+        private List<string> respawnMethodCheck = new List<string>() { "GhostRespawn" };
 
         // Misc variables
         public float respawnTime; // For an added penalty per death.
@@ -107,7 +109,7 @@ namespace AlexioXela
         private void Run_Start(On.RoR2.Run.orig_Start orig, Run self)
         {
             orig(self);
-            if (!_config.EnableRefightilization) return;
+            if (!_config.EnableGhostOnDeath) return;
             respawnTime = _config.RespawnDelay; // Making sure that this function exists on a per run basis.
             SetupPlayers(); // Gotta make sure players are properly stored once the run begins.
             SetupLang(); // For all of our wacky lines we need said.
@@ -117,7 +119,7 @@ namespace AlexioXela
         private void GlobalEventManager_OnPlayerCharacterDeath(On.RoR2.GlobalEventManager.orig_OnPlayerCharacterDeath orig, GlobalEventManager self, DamageReport damageReport, NetworkUser victimNetworkUser)
         {
             orig(self, damageReport, victimNetworkUser);
-            if (!_config.EnableRefightilization) return;
+            if (!_config.EnableGhostOnDeath) return;
 
             // Handling PvP and if a monster successfully kills a player.
             if (_config.MurderRevive)
@@ -150,7 +152,7 @@ namespace AlexioXela
         private void GlobalEventManager_onServerDamageDealt(DamageReport report)
         {
             // The usual "if enabled" check.
-            if (!_config.EnableRefightilization && !_config.MurderRevive) return;
+            if (!_config.EnableGhostOnDeath && !_config.MurderRevive) return;
 
             // Confirming that the damage report contains network users.
             if (FindPlayerStorage(report.attackerMaster) != null && FindPlayerStorage(report.victimMaster) != null)
@@ -163,9 +165,9 @@ namespace AlexioXela
 
         private void Run_OnServerSceneChanged(On.RoR2.Run.orig_OnServerSceneChanged orig, Run self, string sceneName)
         {
-            if (_config.EnableRefightilization) StopCoroutine(RespawnCheck()); // Stop any current respawn checks.
+            if (_config.EnableGhostOnDeath) StopCoroutine(RespawnCheck()); // Stop any current respawn checks.
             orig(self, sceneName);
-            if (!_config.EnableRefightilization) return; // Kinda pointless to do anything if the mod is disabled.
+            if (!_config.EnableGhostOnDeath) return; // Kinda pointless to do anything if the mod is disabled.
             if (sceneName.Equals("moon") || sceneName.Equals("moon2")) moonDisabled = true; // Disabling everything if we're on the moon.
             if (self.stageClearCount > 0) ResetPrefabs(); // Gotta make sure players respawn as their desired class.
             Invoke("UpdateStageWhitelist", 1f); // Gotta make sure we have an accurate monster selection.
@@ -177,7 +179,7 @@ namespace AlexioXela
         private void Run_OnUserAdded(On.RoR2.Run.orig_OnUserAdded orig, Run self, NetworkUser user)
         {
             orig(self, user);
-            if (Run.instance.time > 1f && _config.EnableRefightilization)
+            if (Run.instance.time > 1f && _config.EnableGhostOnDeath)
             {
                 bool playerWasLoggedOut = false; // Tracking if the player existed at one point.
 
@@ -224,7 +226,7 @@ namespace AlexioXela
 
         private void Run_OnUserRemoved(On.RoR2.Run.orig_OnUserRemoved orig, Run self, NetworkUser user)
         {
-            if (Run.instance.time > 1f && _config.EnableRefightilization)
+            if (Run.instance.time > 1f && _config.EnableGhostOnDeath)
             {
                 foreach (PlayerStorage player in playerStorage)
                 {
@@ -236,7 +238,7 @@ namespace AlexioXela
                 }
             }
             orig(self, user);
-            if (Run.instance.time > 1f && _config.EnableRefightilization)
+            if (Run.instance.time > 1f && _config.EnableGhostOnDeath)
             {
                 foreach (PlayerStorage player in playerStorage)
                 {
@@ -253,7 +255,7 @@ namespace AlexioXela
 
         private void TeleporterInteraction_OnInteractionBegin(On.RoR2.TeleporterInteraction.orig_OnInteractionBegin orig, TeleporterInteraction self, Interactor activator)
         {
-            if (_config.EnableRefightilization)
+            if (_config.EnableGhostOnDeath)
             {
                 foreach (PlayerStorage player in playerStorage)
                 {
@@ -268,7 +270,7 @@ namespace AlexioXela
         // Whenever an item is attempted to be picked up.
         private void GenericPickupController_AttemptGrant(On.RoR2.GenericPickupController.orig_AttemptGrant orig, GenericPickupController self, CharacterBody body)
         {
-            if (_config.EnableRefightilization)
+            if (_config.EnableGhostOnDeath)
             {
                 // Get the current player.
                 PlayerStorage player = null; 
@@ -300,8 +302,8 @@ namespace AlexioXela
         // Handling item grants.
         private void Inventory_GiveItem_ItemIndex_int(On.RoR2.Inventory.orig_GiveItem_ItemIndex_int orig, Inventory self, ItemIndex itemIndex, int count)
         {
-            // Is the item in our blacklist? (And also Refight is running.)
-            if (_config.EnableRefightilization && currItemBlacklist.Contains(itemIndex))
+            // Is the item in our blacklist? (And also GhostOnDeath is running.)
+            if (_config.EnableGhostOnDeath && currItemBlacklist.Contains(itemIndex))
             {
                 // Seeing if a valid PlayerStorage exists for this Character.
                 CharacterMaster possiblePlayer = self.GetComponent<CharacterMaster>();
@@ -332,7 +334,7 @@ namespace AlexioXela
         // Handling characters respawning.
         private CharacterBody CharacterMaster_Respawn(On.RoR2.CharacterMaster.orig_Respawn orig, CharacterMaster self, Vector3 footPosition, Quaternion rotation, bool wasRevivedMidStage = false)
         {
-            if (_config.EnableRefightilization)
+            if (_config.EnableGhostOnDeath)
             {
                 string currMethod = new StackFrame(2).GetMethod().Name;
                 if (!respawnMethodCheck.Exists(x => x.Equals(currMethod)) && (FindPlayerStorage(self) != null))
@@ -347,9 +349,9 @@ namespace AlexioXela
         private GameObject CharacterMaster_PickRandomSurvivorBodyPrefab(On.RoR2.CharacterMaster.orig_PickRandomSurvivorBodyPrefab orig, Xoroshiro128Plus rng, NetworkUser networkUser, bool allowHidden)
         {
             // In-case Metamorphosis is enabled, we have to make sure that the monster is the one that respawns and not the survivor.
-            if (_config.EnableRefightilization && _config.OverrideMetamorphosis) {
+            if (_config.EnableGhostOnDeath && _config.OverrideMetamorphosis) {
                 string currMethod = new StackFrame(6).GetMethod().Name;
-                if (currMethod == "RefightRespawn")
+                if (currMethod == "GhostRespawn")
                 {
                     return currEnemyWhitelist[Random.Range(0, currEnemyWhitelist.Count - 1)];
                 }
@@ -360,7 +362,7 @@ namespace AlexioXela
         // Handling if somebody is dead and out of lives.
         private bool CharacterMaster_IsDeadAndOutOfLivesServer(On.RoR2.CharacterMaster.orig_IsDeadAndOutOfLivesServer orig, CharacterMaster self)
         {
-            if(_config.EnableRefightilization)
+            if(_config.EnableGhostOnDeath)
             {
                 PlayerStorage player = FindPlayerStorage(self); // Finding the current player.
                 if (player != null && player.isDead) // If they exist and they *are* dead, by our standards...
@@ -372,7 +374,7 @@ namespace AlexioXela
         // Handling Game-Overs
         private void Run_BeginGameOver(On.RoR2.Run.orig_BeginGameOver orig, Run self, GameEndingDef gameEndingDef)
         {
-            if (!(_config.EnableRefightilization && !_config.EndGameWhenEverybodyDead)) {
+            if (!(_config.EnableGhostOnDeath && !_config.EndGameWhenEverybodyDead)) {
                 StopCoroutine(RespawnCheck()); // We no longer need to check for Respawns
                 ResetPrefabs(); // Gotta clean up every player.
                 orig(self, gameEndingDef);
@@ -457,7 +459,7 @@ namespace AlexioXela
             if (!Run.instance || !Run.instance.isActiveAndEnabled) yield break;
 
             // Wait... Yea disable functionality if the mod is disabled.
-            if (!_config.EnableRefightilization)
+            if (!_config.EnableGhostOnDeath)
             {
                 Logger.LogDebug("Nevermind. Mod is disabled via config.");
                 yield break;
@@ -508,8 +510,8 @@ namespace AlexioXela
                         player.isDead = true; // They died!
 
                     player.master.teamIndex = _config.RespawnTeam; // Moved out here in-case config is changed mid-game.
-                    respawnLoops = 0; // Setting our loops in-case something breaks in RefightRespawn.
-                    RefightRespawn(player.master, deathPos); // Begin respawning the player.
+                    respawnLoops = 0; // Setting our loops in-case something breaks in GhostRespawn.
+                    GhostRespawn(player.master, deathPos); // Begin respawning the player.
                 }
                 else
                 {
@@ -530,7 +532,7 @@ namespace AlexioXela
         }
 
         // Respawning that player.
-        private void RefightRespawn(CharacterMaster player, Vector3 deathPos)
+        private void GhostRespawn(CharacterMaster player, Vector3 deathPos)
         {
             Logger.LogDebug("Attempting player respawn!");
 
@@ -589,7 +591,7 @@ namespace AlexioXela
             else
             {
                 Logger.LogDebug(player.playerCharacterMasterController.networkUser.userName + " has no bodyPrefab!? Retrying...");
-                RefightRespawn(player, deathPos);
+                GhostRespawn(player, deathPos);
                 return;
             }
 
