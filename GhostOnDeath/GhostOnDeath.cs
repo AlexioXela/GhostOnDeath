@@ -53,10 +53,10 @@ namespace AlexioXela
         public List<PlayerStorage> playerStorage = new List<PlayerStorage>();
 
         // Internal, hardcoded monster lists.
-        
+        /*
         private List<GameObject> voidWhitelist = new List<GameObject>();
         private List<GameObject> finalBossWhitelist = new List<GameObject>();
-        
+        */
 
         // Hard-coded Functions for Respawn to not clear the player prefab.
         private List<string> respawnMethodCheck = new List<string>() { "GhostRespawn" };
@@ -64,9 +64,11 @@ namespace AlexioXela
         // Misc variables
         public float respawnTime; // For an added penalty per death.
         private int respawnLoops; // Will break out of the function if it runs into too many of these.
+        /*
         public List<GameObject> currEnemyWhitelist = new List<GameObject>(); // For optimization, keeping track of the current stage's whitelist.
         public List<GameObject> currSpecialEnemyWhitelist = new List<GameObject>(); // For optimization, keeping track of the current stage's whitelist.
         public List<EquipmentIndex> currEliteWhitelist = new List<EquipmentIndex>(); // Another optimization, keeping track of the current stage's elites.
+        */
         public List<ItemIndex> currItemBlacklist = new List<ItemIndex>(); // It'll be so many foreach statements running every time somebody dies unless we store those items somewhere.
         public bool moonDisabled; // For disabling spawning on the moon due to softlocks.
 
@@ -120,7 +122,7 @@ namespace AlexioXela
         {
             orig(self, damageReport, victimNetworkUser);
             if (!_config.EnableGhostOnDeath) return;
-
+            /*
             // Handling PvP and if a monster successfully kills a player.
             if (_config.MurderRevive)
             {
@@ -144,6 +146,7 @@ namespace AlexioXela
                     Chat.SendBroadcastChat(new Chat.SimpleChatMessage { baseToken = "<style=cWorldEvent><sprite name=\"Skull\" tint=1> " + messageText + " <sprite name=\"Skull\" tint=1></style>" });
                 }
             }
+            */
 
             StartCoroutine(RespawnCheck(victimNetworkUser.master.transform.position, respawnTime)); // Spawning in players shortly after a delay.
             respawnTime += _config.AdditionalRespawnTime;
@@ -152,7 +155,7 @@ namespace AlexioXela
         private void GlobalEventManager_onServerDamageDealt(DamageReport report)
         {
             // The usual "if enabled" check.
-            if (!_config.EnableGhostOnDeath && !_config.MurderRevive) return;
+            if (!_config.EnableGhostOnDeath /* && !_config.MurderRevive */) return;
 
             // Confirming that the damage report contains network users.
             if (FindPlayerStorage(report.attackerMaster) != null && FindPlayerStorage(report.victimMaster) != null)
@@ -170,8 +173,10 @@ namespace AlexioXela
             if (!_config.EnableGhostOnDeath) return; // Kinda pointless to do anything if the mod is disabled.
             if (sceneName.Equals("moon") || sceneName.Equals("moon2")) moonDisabled = true; // Disabling everything if we're on the moon.
             if (self.stageClearCount > 0) ResetPrefabs(); // Gotta make sure players respawn as their desired class.
+            /*
             Invoke("UpdateStageWhitelist", 1f); // Gotta make sure we have an accurate monster selection.
             Invoke("UpdateEliteWhitelist", 1f); // Gotta make sure we have an accurate elite selection.
+            */
             Invoke("UpdateBlacklistedItems", 1f); // New baby! Here to check up on all the blacklisted items, too.
             respawnTime = _config.RespawnDelay; // Setting our wacky respawn delay.
         }
@@ -349,13 +354,13 @@ namespace AlexioXela
         private GameObject CharacterMaster_PickRandomSurvivorBodyPrefab(On.RoR2.CharacterMaster.orig_PickRandomSurvivorBodyPrefab orig, Xoroshiro128Plus rng, NetworkUser networkUser, bool allowHidden)
         {
             // In-case Metamorphosis is enabled, we have to make sure that the monster is the one that respawns and not the survivor.
-            if (_config.EnableGhostOnDeath && _config.OverrideMetamorphosis) {
+            /*if (_config.EnableGhostOnDeath && _config.OverrideMetamorphosis) {
                 string currMethod = new StackFrame(6).GetMethod().Name;
                 if (currMethod == "GhostRespawn")
                 {
-                    return currEnemyWhitelist[Random.Range(0, currEnemyWhitelist.Count - 1)];
+                    return currEnemyWhitelist[Random.Range(0, currEnemyWhitelist.Count - 1)]; //AX I figure here we'll make sure ghost is who respawns and not survivor
                 }
-            }
+            }*/
             return orig(rng, networkUser, allowHidden);
         }
 
@@ -399,7 +404,7 @@ namespace AlexioXela
             orig(self, wc);
         }
 
-        // Not yet the end of hooks, but up here are setup functions, and I need a place to shuffle through language info when neccesary.
+        // Not yet the end of hooks, but up here are setup functions, and I need a place to shuffle through language info when necessary.
         private void SetupLang()
         {
             _language = new GhostOnDeathLanguage();
@@ -421,7 +426,7 @@ namespace AlexioXela
                     continue;
                 }
 
-                // If this is ran mid-game, just skip over existing players and add anybody who joined.
+                // If this is run mid-game, just skip over existing players and add anybody who joined.
                 if (!StageUpdate && playerStorage != null)
                 {
                     // Skipping over players that are already in the game.
@@ -509,7 +514,7 @@ namespace AlexioXela
                     if (!player.isDead)
                         player.isDead = true; // They died!
 
-                    player.master.teamIndex = _config.RespawnTeam; // Moved out here in-case config is changed mid-game.
+                    player.master.teamIndex = _config.RespawnTeam; // Moved out here in-case config is changed mid-game. //AX will probably need to tinker with this
                     respawnLoops = 0; // Setting our loops in-case something breaks in GhostRespawn.
                     GhostRespawn(player.master, deathPos); // Begin respawning the player.
                 }
@@ -536,7 +541,7 @@ namespace AlexioXela
         {
             Logger.LogDebug("Attempting player respawn!");
 
-            // Fun fact: I pushed a build without this. This is vital to anything working and it completly slipped my mind. It helps us track how many loops we're in :).
+            // Fun fact: I pushed a build without this. This is vital to anything working and it completely slipped my mind. It helps us track how many loops we're in :).
             respawnLoops++;
 
             // Catching if we're in the middle of an infinite loop.
@@ -567,7 +572,7 @@ namespace AlexioXela
                 player.inventory.SetEquipmentIndex(FindPlayerStorage(player).previousEquipment);
                 FindPlayerStorage(player).giftedAffix = false;
             }
-
+            /*
             // Another optimization, to prevent the game from looping over several repeated monsters.
             List<GameObject> tempEnemyWhitelist = currEnemyWhitelist;
             if (Util.CheckRoll(5f, player.playerCharacterMasterController.master) && currSpecialEnemyWhitelist.Count >= 1) tempEnemyWhitelist = new List<GameObject>(currSpecialEnemyWhitelist);
@@ -578,10 +583,11 @@ namespace AlexioXela
             GameObject randomMonster = tempEnemyWhitelist[Random.Range(0, tempEnemyWhitelist.Count - 1)];
 
             Logger.LogDebug("Found body " + randomMonster.name + ".");
-
+            */
             // Do we have a blacklisted item?
             TakeBlacklistedItems(player);
-
+            
+            /* AX idk if we need to do something here...probably at least put some kind of marker on the player indicating they're a ghost?
             // Assigning the player to the selected monster prefab.
             if (player.bodyPrefab && randomMonster)
             {
@@ -594,9 +600,10 @@ namespace AlexioXela
                 GhostRespawn(player, deathPos);
                 return;
             }
+            */
 
             // Grabbing a viable position for the player to spawn in.
-            Vector3 newPos = deathPos; // Starting with where the player dies, if all else fails.
+            Vector3 newPos = deathPos; // Starting with where the player dies, if all else fails. //AX may want to set it to spectate pos if possible and if spectating
 
             // Radius for our spawning.
             Vector3 spawnRadius = new Vector3(Random.Range(-5, 5), Random.Range(-5, 5), Random.Range(-2, 2));
@@ -637,6 +644,7 @@ namespace AlexioXela
                 Logger.LogDebug("Granting an interaction driver.");
             }
 
+            /*
             // Oh! And fixing up their interactor so they can reach things that are just a *little* outta reach*.
             if (player.GetBody().GetComponent<Interactor>())
             {
@@ -652,16 +660,18 @@ namespace AlexioXela
                     interactor.maxInteractionDistance *= 1.5f;
 
                 Logger.LogDebug("Modifying interaction distance.");
-            }
+            } */
 
+            /*
             // Grabbing all of the minions of the player and changing their team.
-            ChangeMinionsTeam(player);
+            ChangeMinionsTeam(player); */
 
             // Some fun stuff to allow players to easily get back into combat.
             player.GetBody().AddTimedBuff(RoR2Content.Buffs.ArmorBoost, 15f);
             player.GetBody().AddTimedBuff(RoR2Content.Buffs.CloakSpeed, 30f);
             Logger.LogDebug("Applied buffs.");
 
+            /*
             // And Affixes if the player is lucky.
             if (_config.RespawnAffixEnabled && (Util.CheckRoll(_config.RespawnAffixChance, player.playerCharacterMasterController.master) || RunArtifactManager.instance.IsArtifactEnabled(RoR2Content.Artifacts.eliteOnlyArtifactDef)))
             {
@@ -672,7 +682,7 @@ namespace AlexioXela
                 player.inventory.SetEquipmentIndex(currEliteWhitelist[i]); // Apply that equipment.
                 FindPlayerStorage(player).giftedAffix = _config.TakeAffix; // Set a variable to take it away.
                 Logger.LogDebug("Gifted affix.");
-            }
+            } */
 
             // Oh and they can't prevent a gameover anymore.
             player.preventGameOver = false;
@@ -680,7 +690,7 @@ namespace AlexioXela
             // Resetting the amount of loops that we've done. 
             respawnLoops = 0;
 
-            // Broadcasting it to everyone.
+            // Broadcasting it to everyone. //AX may need to mess with this
             if (_config.AnnounceRespawns) {
                 string messageText = _language.ReviveMessages[Random.Range(0, _language.ReviveMessages.Count - 1)];
                 messageText = messageText.Replace("{0}", player.playerCharacterMasterController.networkUser.userName);
@@ -722,7 +732,7 @@ namespace AlexioXela
         {
             player.master.bodyPrefab = player.origPrefab; // Resetting their prefab.
             player.master.teamIndex = TeamIndex.Player; // Putting them back on the player team.
-            ChangeMinionsTeam(player.master);
+            /*ChangeMinionsTeam(player.master);*/
 
             // Taking back that affix.
             if (player.giftedAffix)
@@ -738,6 +748,7 @@ namespace AlexioXela
             player.isDead = false;
         }
 
+        /*
         // Changing the teams of all of a player's minions.
         private void ChangeMinionsTeam(CharacterMaster player)
         {
@@ -771,7 +782,7 @@ namespace AlexioXela
                     }
                 }
             }
-        }
+        } 
 
         // Updating our Whitelist of monsters at stage generation.
         private void UpdateStageWhitelist()
@@ -923,7 +934,7 @@ namespace AlexioXela
                 }
             }
             Logger.LogDebug("Done updating Whitelist.");
-        }
+        } */
 
         // Utility Methods
         //
@@ -953,7 +964,7 @@ namespace AlexioXela
         }
 
         // A cheap and dirty way of checking to see if a string is in the blacklist.
-        private bool CheckBlacklist(string name)
+        /*private bool CheckBlacklist(string name)
         {
             bool flag = false;
             foreach (string enemy in _config.BlacklistedEnemies)
@@ -965,7 +976,7 @@ namespace AlexioXela
                 }
             }
             return flag;
-        }
+        }*/
 
         // Grabbing a certain player in the playerStorage object.
         private PlayerStorage FindPlayerStorage(CharacterMaster cMaster)
